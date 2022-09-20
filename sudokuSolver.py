@@ -1,9 +1,14 @@
+#Patrick Lenahan    plenahan@iastate.edu
+
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
+#Takes in website
 driver = webdriver.Firefox()
 driver.get("http://grid.websudoku.com/?")
+
+#Reads the table using the HTML from the website
 def get_table():
    table = driver.find_elements(By.ID, 'puzzle_grid')
    for i in range(len(table)):
@@ -19,20 +24,30 @@ def get_table():
            row_data.append(int(num) if len(num)==1 else 0)
        board.append(row_data)
    return(board)
+
+#Checks each column
 def check_column(num, column, board):
    for row in board:
        if row[column] == num:
            return True
+      
+#Checks each row
 def check_row(num, row, board):
    if num in board[row]:
        return True
+
+#Checks each 3x3 box
 def check_cell(num, x, y, board):
    for y_ in range(0,3):
        for x_ in range(0,3):
            if board[(y//3)*3+y_][(x//3)*3+x_] == num:
                return True
+            
+#Checks if the puzzle can be solved
 def possible(num, x, y, board):
    return(not(check_column(num, x, board)) and not(check_row(num, y, board)) and not(check_cell(num, x, y, board)))
+
+#Solves the given Sudoku puzzle
 def solve(board):
    for y in range(9):
        for x in range(9):
@@ -47,6 +62,8 @@ def solve(board):
    return board
 solved_board = solve(get_table())
 empty_board = get_table()
+
+#Inputs the correct numbers into the cells
 for y, row in enumerate(empty_board):
    for x, element in enumerate(row):
        #if element == 0:
@@ -54,5 +71,6 @@ for y, row in enumerate(empty_board):
         current_cell = driver.find_element(By.ID, id)
         current_cell.send_keys(solved_board[y][x])
 
+#Clicks the "Submit" button, finishing the puzzle
 submit = driver.find_element(By.NAME, 'submit')
 submit.click()
